@@ -17,6 +17,7 @@ import { AdminPanelModal } from './components/AdminPanelModal.tsx';
 import { HorizontalCarousel } from './components/HorizontalCarousel.tsx';
 import { PlaylistCard } from './components/PlaylistCard.tsx';
 import { SpotifyActionBar } from './components/SpotifyActionBar.tsx';
+import { GuitarLogo } from './components/GuitarLogo.tsx';
 import {
   filterTracks,
   getSectionTracks,
@@ -50,6 +51,7 @@ import {
   Globe,
   SlidersHorizontal,
   Home,
+  X,
 } from 'lucide-react';
 import type { Track, Playlist, Genre, HomeSection } from './types/music.ts';
 
@@ -79,6 +81,8 @@ function MainContent() {
     shuffle,
     toggleShuffle,
     isAdminAuthenticated,
+    triggerLogoClick,
+    setSearchQuery,
   } = useMusic();
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -1183,7 +1187,33 @@ function MainContent() {
 
         {/* Main View Area */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <TopBar onOpenMobileSidebar={() => setMobileSidebarOpen(true)} />
+          {/* TopBar: Shown on Desktop, completely hidden on Mobile as requested */}
+          <div className="hidden md:block">
+            <TopBar onOpenMobileSidebar={() => setMobileSidebarOpen(true)} />
+          </div>
+
+          {/* Dedicated Clean Mobile Search Bar (Replacing cluttered TopBar on mobile) */}
+          <div className="md:hidden shrink-0 flex items-center gap-2 px-3.5 py-2.5 border-b border-slate-800/80 bg-[#090a0f]">
+            <div className="flex-1 relative flex items-center">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search songs, singers, playlists..."
+                className="w-full pl-9 pr-8 py-2 bg-slate-900/90 text-xs text-white placeholder-slate-400 rounded-xl border border-slate-800 focus:outline-none focus:border-emerald-500"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 text-slate-400 hover:text-white p-1"
+                  aria-label="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
 
           {/* Quick Horizontal Section Bar for Mobile & Tablet */}
           <div className="md:hidden shrink-0 flex items-center gap-1.5 overflow-x-auto scrollbar-none px-3 py-2 border-b border-slate-800/70 bg-[#0b0d14]/95">
@@ -1272,13 +1302,13 @@ function MainContent() {
           <span className="text-[10px] font-semibold mt-0.5">Playlists</span>
         </button>
         <button
-          onClick={() => setActiveView('liked')}
-          className={`min-h-[46px] flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer ${
-            activeView === 'liked' ? 'text-rose-400 font-bold' : 'text-slate-400 hover:text-white'
-          }`}
+          onClick={triggerLogoClick}
+          className="min-h-[46px] flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer text-slate-400 hover:text-white"
+          title="AuraStream (Tap 3x for Admin)"
+          aria-label="AuraStream Admin / Brand"
         >
-          <Heart className={`w-4 h-4 ${activeView === 'liked' ? 'fill-rose-400' : ''}`} />
-          <span className="text-[10px] font-semibold mt-0.5">Liked</span>
+          <GuitarLogo size={22} showText={false} />
+          <span className="text-[10px] font-semibold mt-0.5">Aura</span>
         </button>
       </nav>
 

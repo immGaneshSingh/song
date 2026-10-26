@@ -529,14 +529,12 @@ export function smartClassifyTrackMetadata(
   }
 
   if (!detectedSinger || isGenericChannelOrLabel(detectedSinger)) {
-    detectedSinger =
-      detectedSection === 'english'
-        ? 'The Weeknd'
-        : detectedSection === 'bhojpuri'
-        ? 'Pawan Singh'
-        : detectedSection === 'bhakti'
-        ? 'Hariharan'
-        : 'Arijit Singh';
+    // Retain the rawArtist if it isn't generic; otherwise use 'Various Artists' instead of blindly forcing Arijit Singh
+    if (rawArtist && !isGenericChannelOrLabel(rawArtist)) {
+      detectedSinger = rawArtist;
+    } else {
+      detectedSinger = 'Various Artists';
+    }
   }
 
   const sectionToGenre: Record<HomeSection, 'Hindi' | 'Bhojpuri' | 'Bhakti' | 'English'> = {
