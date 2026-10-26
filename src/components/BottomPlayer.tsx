@@ -14,6 +14,7 @@ import {
   ListMusic,
   FileText,
   Radio,
+  ChevronDown,
 } from 'lucide-react';
 import { useMusic } from '../context/MusicContext.tsx';
 import {
@@ -24,7 +25,15 @@ import {
 import { getYouTubeThumbnail } from '../utils/youtubeUtils.ts';
 import { CoverArt } from './CoverArt.tsx';
 
-export const BottomPlayer: React.FC = () => {
+interface BottomPlayerProps {
+  isMobileVisible?: boolean;
+  onCloseMobile?: () => void;
+}
+
+export const BottomPlayer: React.FC<BottomPlayerProps> = ({
+  isMobileVisible = false,
+  onCloseMobile,
+}) => {
   const {
     currentTrack,
     isPlaying,
@@ -133,7 +142,9 @@ export const BottomPlayer: React.FC = () => {
   };
 
   return (
-    <div className="shrink-0 w-full z-40 bg-[#0c0e16]/98 backdrop-blur-xl border-t border-slate-800/80 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] select-none">
+    <div className={`shrink-0 w-full z-40 bg-[#0c0e16]/98 backdrop-blur-xl border-t border-slate-800/80 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] select-none transition-all duration-300 ${
+      isMobileVisible ? 'block animate-in slide-in-from-bottom-3' : 'hidden md:block'
+    }`}>
       {/* Top interactive seekbar/scrubber across entire player top edge */}
       <div
         ref={scrubBarRef}
@@ -199,19 +210,32 @@ export const BottomPlayer: React.FC = () => {
             </div>
           </div>
 
-          {/* Like Heart Button: Explicitly placed at the far right of Row 1 with dedicated 40px touch target */}
-          <button
-            onClick={() => toggleLike(currentTrack.id)}
-            className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all shrink-0 cursor-pointer ${
-              isLiked
-                ? 'text-rose-400 bg-rose-500/15 border border-rose-500/30 shadow-sm shadow-rose-500/20'
-                : 'text-slate-400 hover:text-white bg-slate-900/80 border border-slate-800 hover:bg-slate-800'
-            }`}
-            title={isLiked ? 'Remove from Liked Songs' : 'Save to Liked Songs'}
-            aria-label={isLiked ? 'Unlike song' : 'Like song'}
-          >
-            <Heart className={`w-4 h-4 ${isLiked ? 'fill-rose-500 text-rose-500' : ''}`} />
-          </button>
+          {/* Controls Right in Row 1: Like Heart & Mobile Collapse */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => toggleLike(currentTrack.id)}
+              className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition-all shrink-0 cursor-pointer ${
+                isLiked
+                  ? 'text-rose-400 bg-rose-500/15 border border-rose-500/30 shadow-sm shadow-rose-500/20'
+                  : 'text-slate-400 hover:text-white bg-slate-900/80 border border-slate-800 hover:bg-slate-800'
+              }`}
+              title={isLiked ? 'Remove from Liked Songs' : 'Save to Liked Songs'}
+              aria-label={isLiked ? 'Unlike song' : 'Like song'}
+            >
+              <Heart className={`w-4 h-4 ${isLiked ? 'fill-rose-500 text-rose-500' : ''}`} />
+            </button>
+
+            {onCloseMobile && (
+              <button
+                onClick={onCloseMobile}
+                className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-white bg-slate-900/80 border border-slate-800 shrink-0 cursor-pointer"
+                title="Hide Player"
+                aria-label="Hide player"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Center Section: Desktop Controls & Dynamic mm:ss Timestamps */}

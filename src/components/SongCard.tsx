@@ -56,14 +56,14 @@ export const SongCard: React.FC<SongCardProps> = React.memo(({ track, allTracks,
   return (
     <div
       onClick={handleCardClick}
-      className={`group relative p-3 rounded-2xl bg-[#0e111a]/90 hover:bg-[#131726] border transition-all duration-300 ease-out cursor-pointer flex flex-col justify-between select-none ${
+      className={`group relative p-2 sm:p-3 rounded-2xl bg-[#0e111a]/90 hover:bg-[#131726] border transition-all duration-300 ease-out cursor-pointer flex flex-col justify-between select-none ${
         isCurrent
           ? 'border-emerald-500/60 shadow-[0_0_24px_rgba(16,185,129,0.25)] ring-1 ring-emerald-500/30'
           : 'border-slate-800/80 hover:border-emerald-500/50 hover:shadow-[0_0_24px_rgba(16,185,129,0.20)] hover:-translate-y-1'
       } ${className}`}
     >
       {/* Cover Art Container */}
-      <div className="relative aspect-square w-full rounded-xl overflow-hidden mb-3 shadow-md bg-slate-900">
+      <div className="relative aspect-square w-full rounded-xl overflow-hidden mb-2 sm:mb-3 shadow-md bg-slate-900">
         <CoverArt
           src={track.coverUrl}
           alt={cleanTitle}
@@ -119,20 +119,20 @@ export const SongCard: React.FC<SongCardProps> = React.memo(({ track, allTracks,
 
       {/* Metadata */}
       <div className="flex-1 flex flex-col justify-between min-w-0">
-        <div className="mb-2 min-w-0">
+        <div className="mb-1.5 sm:mb-2 min-w-0">
           <h3
             title={cleanTitle}
-            className={`text-sm font-semibold truncate transition-colors ${
+            className={`text-xs sm:text-sm font-semibold truncate transition-colors ${
               isCurrent ? 'text-emerald-400 font-bold' : 'text-slate-100 group-hover:text-white'
             }`}
           >
             {cleanTitle}
           </h3>
-          <p title={cleanArtist} className="text-xs text-slate-400 truncate mt-0.5">
+          <p title={cleanArtist} className="text-[11px] sm:text-xs text-slate-400 truncate mt-0.5">
             {cleanArtist}
           </p>
           {cleanAlbum && (
-            <p title={cleanAlbum} className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p title={cleanAlbum} className="text-[10px] sm:text-[11px] text-slate-500 truncate mt-0.5">
               {cleanAlbum}
             </p>
           )}

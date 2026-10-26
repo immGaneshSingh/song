@@ -113,9 +113,9 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = React.memo(
             handleCardClick();
           }
         }}
-        className={`group relative p-3.5 rounded-2xl bg-[#0e111a]/90 hover:bg-[#131726] border border-slate-800/80 hover:border-emerald-500/50 hover:shadow-[0_0_24px_rgba(16,185,129,0.20)] hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer flex flex-col justify-between select-none ${className}`}
+        className={`group relative p-2 sm:p-3.5 rounded-2xl bg-[#0e111a]/90 hover:bg-[#131726] border border-slate-800/80 hover:border-emerald-500/50 hover:shadow-[0_0_24px_rgba(16,185,129,0.20)] hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer flex flex-col justify-between select-none ${className}`}
       >
-        <div className="relative aspect-square w-full rounded-xl overflow-hidden mb-3 bg-gradient-to-br shadow-md flex items-center justify-center">
+        <div className="relative aspect-square w-full rounded-xl overflow-hidden mb-2 sm:mb-3 bg-gradient-to-br shadow-md flex items-center justify-center">
           <div
             className={`w-full h-full bg-gradient-to-br ${playlist.coverGradient} flex items-center justify-center relative overflow-hidden`}
           >
@@ -129,7 +129,7 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = React.memo(
             ) : (
               <>
                 <div className="absolute inset-0 bg-radial from-white/10 to-transparent pointer-events-none" />
-                <Music className="w-12 h-12 text-white/80 group-hover:scale-110 transition-transform duration-300" />
+                <Music className="w-8 h-8 sm:w-12 sm:h-12 text-white/80 group-hover:scale-110 transition-transform duration-300" />
               </>
             )}
 
@@ -142,9 +142,9 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = React.memo(
                 type="button"
                 onClick={handlePlayClick}
                 aria-label={`Play ${cleanName}`}
-                className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center shadow-xl shadow-emerald-500/30 transform transition-transform group-hover:scale-105 active:scale-95 cursor-pointer"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center shadow-xl shadow-emerald-500/30 transform transition-transform group-hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <Play className="w-5 h-5 fill-slate-950 translate-x-0.5" />
+                <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-slate-950 translate-x-0.5" />
               </button>
             </div>
           </div>
@@ -154,19 +154,21 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = React.memo(
           <div>
             <h3
               title={cleanName}
-              className="text-sm font-bold text-white group-hover:text-emerald-400 line-clamp-2 min-h-[2.5rem] leading-snug transition-colors"
+              className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-400 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] leading-snug transition-colors"
             >
               {cleanName}
             </h3>
-            <p
-              title={cleanDesc}
-              className="text-xs text-slate-400 line-clamp-1 mt-1 leading-relaxed"
-            >
-              {cleanDesc || 'Curated music playlist'}
-            </p>
+            {cleanDesc && (
+              <p
+                title={cleanDesc}
+                className="text-[11px] sm:text-xs text-slate-400 line-clamp-1 mt-0.5 leading-relaxed"
+              >
+                {cleanDesc || 'Curated music playlist'}
+              </p>
+            )}
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono tabular-nums pt-2 border-t border-slate-800/60 mt-2.5">
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-slate-400 font-mono tabular-nums pt-1.5 sm:pt-2 border-t border-slate-800/60 mt-1.5 sm:mt-2.5">
             <span>{playlist.trackIds.length} songs</span>
             <span aria-hidden="true" className="text-slate-600">·</span>
             <span className="text-slate-300 font-sans truncate">

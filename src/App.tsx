@@ -82,10 +82,45 @@ function MainContent() {
     toggleShuffle,
     isAdminAuthenticated,
     triggerLogoClick,
+    setIsAdminModalOpen,
     setSearchQuery,
   } = useMusic();
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [isMobilePlayerOpen, setIsMobilePlayerOpen] = useState(false);
+  const guitarClickTimesRef = useRef<number[]>([]);
+  const guitarSingleClickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleGuitarLogoClick = () => {
+    const now = Date.now();
+    guitarClickTimesRef.current = guitarClickTimesRef.current.filter((t) => now - t <= 1500);
+    guitarClickTimesRef.current.push(now);
+
+    if (guitarClickTimesRef.current.length >= 3) {
+      guitarClickTimesRef.current = [];
+      if (guitarSingleClickTimerRef.current) {
+        clearTimeout(guitarSingleClickTimerRef.current);
+        guitarSingleClickTimerRef.current = null;
+      }
+      setIsAdminModalOpen(true);
+      return;
+    }
+
+    if (guitarSingleClickTimerRef.current) {
+      clearTimeout(guitarSingleClickTimerRef.current);
+    }
+    guitarSingleClickTimerRef.current = setTimeout(() => {
+      setIsMobilePlayerOpen((prev) => !prev);
+      guitarClickTimesRef.current = [];
+    }, 260);
+  };
+
+  useEffect(() => {
+    if (currentTrack && isPlaying) {
+      setIsMobilePlayerOpen(true);
+    }
+  }, [currentTrack?.id]);
+
   const [playlistSearchQuery, setPlaylistSearchQuery] = useState('');
   const [sectionManageSearch, setSectionManageSearch] = useState('');
   const [showSectionManager, setShowSectionManager] = useState(false);
@@ -1036,7 +1071,7 @@ function MainContent() {
                   key={`home-feat-${pl.id}`}
                   playlist={pl}
                   variant="square"
-                  className="w-52 sm:w-56 shrink-0 snap-start"
+                  className="w-[144px] sm:w-56 shrink-0 snap-start"
                 />
               ))}
             </HorizontalCarousel>
@@ -1060,7 +1095,7 @@ function MainContent() {
                     key={`sec1-hindi-${track.id}`}
                     track={track}
                     allTracks={hindiTracks}
-                    className="w-44 sm:w-48 shrink-0 snap-start"
+                    className="w-[136px] sm:w-48 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1085,7 +1120,7 @@ function MainContent() {
                     key={`sec2-bhoj-${track.id}`}
                     track={track}
                     allTracks={bhojpuriTracks}
-                    className="w-44 sm:w-48 shrink-0 snap-start"
+                    className="w-[136px] sm:w-48 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1110,7 +1145,7 @@ function MainContent() {
                     key={`sec3-bhakti-${track.id}`}
                     track={track}
                     allTracks={bhaktiTracks}
-                    className="w-44 sm:w-48 shrink-0 snap-start"
+                    className="w-[136px] sm:w-48 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1135,7 +1170,7 @@ function MainContent() {
                     key={`sec4-english-${track.id}`}
                     track={track}
                     allTracks={englishTracks}
-                    className="w-44 sm:w-48 shrink-0 snap-start"
+                    className="w-[136px] sm:w-48 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1156,7 +1191,7 @@ function MainContent() {
                   <ArtistCard
                     key={`home-artist-${artist.id}`}
                     artist={artist}
-                    className="w-36 sm:w-40 shrink-0 snap-start"
+                    className="w-[110px] sm:w-36 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1192,54 +1227,6 @@ function MainContent() {
             <TopBar onOpenMobileSidebar={() => setMobileSidebarOpen(true)} />
           </div>
 
-          {/* Dedicated Clean Mobile Search Bar (Replacing cluttered TopBar on mobile) */}
-          <div className="md:hidden shrink-0 flex items-center gap-2 px-3.5 py-2.5 border-b border-slate-800/80 bg-[#090a0f]">
-            <div className="flex-1 relative flex items-center">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search songs, singers, playlists..."
-                className="w-full pl-9 pr-8 py-2 bg-slate-900/90 text-xs text-white placeholder-slate-400 rounded-xl border border-slate-800 focus:outline-none focus:border-emerald-500"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 text-slate-400 hover:text-white p-1"
-                  aria-label="Clear search"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Quick Horizontal Section Bar for Mobile & Tablet */}
-          <div className="md:hidden shrink-0 flex items-center gap-1.5 overflow-x-auto scrollbar-none px-3 py-2 border-b border-slate-800/70 bg-[#0b0d14]/95">
-            {[
-              { id: 'home', label: 'All Music' },
-              { id: 'hindi', label: `🇮🇳 Hindi (${hindiTracks.length})` },
-              { id: 'bhojpuri', label: `💥 Bhojpuri (${bhojpuriTracks.length})` },
-              { id: 'bhakti', label: `🪔 Bhakti (${bhaktiTracks.length})` },
-              { id: 'english', label: `🌍 English (${englishTracks.length})` },
-              { id: 'artists', label: `🎤 Singers (${artists.length})` },
-              { id: 'library', label: `💿 Playlists (${playlists.length})` },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveView(item.id as any)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition-all cursor-pointer ${
-                  activeView === item.id
-                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
-                    : 'bg-slate-900/90 text-slate-300 border border-slate-800 hover:text-white'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
           {/* Scrollable Content Container with generous bottom clearance for the docked player & mobile nav */}
           <main
             ref={mainScrollRef}
@@ -1253,8 +1240,11 @@ function MainContent() {
         <QueueDrawer />
       </div>
 
-      {/* Docked Bottom Music Player */}
-      <BottomPlayer />
+      {/* Music Player (Docked on Desktop, Toggled via Guitar Logo on Mobile) */}
+      <BottomPlayer
+        isMobileVisible={isMobilePlayerOpen}
+        onCloseMobile={() => setIsMobilePlayerOpen(false)}
+      />
 
       {/* Mobile Bottom Navigation Bar (App-style quick switching on phones) */}
       <nav
@@ -1302,13 +1292,22 @@ function MainContent() {
           <span className="text-[10px] font-semibold mt-0.5">Playlists</span>
         </button>
         <button
-          onClick={triggerLogoClick}
-          className="min-h-[46px] flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer text-slate-400 hover:text-white"
-          title="AuraStream (Tap 3x for Admin)"
-          aria-label="AuraStream Admin / Brand"
+          onClick={handleGuitarLogoClick}
+          className={`min-h-[46px] flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer relative ${
+            isMobilePlayerOpen ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-white'
+          }`}
+          title="AuraStream (Tap 1x for Music Player, 3x within 1.5s for Admin Panel)"
+          aria-label="AuraStream Player and Admin"
         >
-          <GuitarLogo size={22} showText={false} />
-          <span className="text-[10px] font-semibold mt-0.5">Aura</span>
+          <div className="relative">
+            <GuitarLogo size={22} showText={false} />
+            {isPlaying && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse" />
+            )}
+          </div>
+          <span className="text-[10px] font-semibold mt-0.5">
+            {isMobilePlayerOpen ? 'Hide' : 'Aura'}
+          </span>
         </button>
       </nav>
 

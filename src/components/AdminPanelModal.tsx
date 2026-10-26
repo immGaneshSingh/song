@@ -951,17 +951,17 @@ export const AdminPanelModal: React.FC = () => {
           </div>
         </div>
 
-        {/* Always-Visible Tab Navigation Menu (shrink-0 + flex-wrap prevents collapsing when switching sections) */}
+        {/* Always-Visible Tab Navigation Menu (Horizontally Scrollable / Swipeable on mobile) */}
         <div
           role="tablist"
           aria-label="Admin Menu Sections"
-          className="shrink-0 flex flex-wrap items-center gap-1.5 px-4 sm:px-6 py-2.5 border-b border-slate-800/90 bg-slate-950/90 z-20"
+          className="shrink-0 flex items-center gap-2 px-3 sm:px-6 py-2.5 border-b border-slate-800/90 bg-slate-950/95 overflow-x-auto scrollbar-none whitespace-nowrap z-20"
         >
           <button
             role="tab"
             aria-selected={activeTab === 'add'}
             onClick={() => setActiveTab('add')}
-            className={`flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
+            className={`shrink-0 flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
               activeTab === 'add'
                 ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-sm'
                 : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800'
@@ -974,7 +974,7 @@ export const AdminPanelModal: React.FC = () => {
             role="tab"
             aria-selected={activeTab === 'playlists'}
             onClick={() => setActiveTab('playlists')}
-            className={`flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
+            className={`shrink-0 flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
               activeTab === 'playlists'
                 ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-sm'
                 : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800'
@@ -987,7 +987,7 @@ export const AdminPanelModal: React.FC = () => {
             role="tab"
             aria-selected={activeTab === 'ai_manager'}
             onClick={() => setActiveTab('ai_manager')}
-            className={`flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
+            className={`shrink-0 flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
               activeTab === 'ai_manager'
                 ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-sm'
                 : 'bg-slate-900/80 border-cyan-500/30 text-cyan-300 hover:text-white hover:bg-slate-800'
@@ -1000,7 +1000,7 @@ export const AdminPanelModal: React.FC = () => {
             role="tab"
             aria-selected={activeTab === 'singers'}
             onClick={() => setActiveTab('singers')}
-            className={`flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
+            className={`shrink-0 flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
               activeTab === 'singers'
                 ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-sm'
                 : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800'
@@ -1013,7 +1013,7 @@ export const AdminPanelModal: React.FC = () => {
             role="tab"
             aria-selected={activeTab === 'list'}
             onClick={() => setActiveTab('list')}
-            className={`flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
+            className={`shrink-0 flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
               activeTab === 'list'
                 ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-sm'
                 : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800'
@@ -1026,7 +1026,7 @@ export const AdminPanelModal: React.FC = () => {
             role="tab"
             aria-selected={activeTab === 'guide'}
             onClick={() => setActiveTab('guide')}
-            className={`flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
+            className={`shrink-0 flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
               activeTab === 'guide'
                 ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-sm'
                 : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800'
@@ -1039,7 +1039,7 @@ export const AdminPanelModal: React.FC = () => {
             role="tab"
             aria-selected={activeTab === 'security'}
             onClick={() => setActiveTab('security')}
-            className={`flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
+            className={`shrink-0 flex items-center gap-1.5 py-2 px-3 rounded-xl font-semibold text-xs border transition-all cursor-pointer ${
               activeTab === 'security'
                 ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-sm'
                 : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800'

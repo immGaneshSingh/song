@@ -448,32 +448,72 @@ async function fetchServerPlaylistTracks(
         duration: number;
       }>;
     };
-    if (!data || !Array.isArray(data.videos) || data.videos.length === 0) {
-      return null;
+    if (data && Array.isArray(data.videos) && data.videos.length > 0) {
+      const resolvedTracks: Track[] = data.videos.map((v) => ({
+        id: `track-yt-pl-${v.videoId}`,
+        title: v.title,
+        artist: v.artist,
+        album: data.title || 'YouTube Playlist',
+        duration: v.duration || 240,
+        audioUrl: '',
+        coverUrl: v.coverUrl || getYouTubeThumbnail(v.videoId),
+        youtubeId: v.videoId,
+        genre,
+        language: genre === 'Bhojpuri' ? 'Bhojpuri' : 'Hindi',
+        releaseYear: new Date().getFullYear(),
+        playCount: Math.floor(Math.random() * 400000) + 75000,
+        gradient: 'from-emerald-600 via-teal-800 to-slate-950',
+        isOfficial: true,
+      }));
+      return {
+        title: data.title || `YouTube Playlist (${playlistId.slice(0, 10)})`,
+        tracks: resolvedTracks,
+      };
     }
-    const resolvedTracks: Track[] = data.videos.map((v) => ({
-      id: `track-yt-pl-${v.videoId}`,
-      title: v.title,
-      artist: v.artist,
-      album: data.title || 'YouTube Playlist',
-      duration: v.duration || 240,
-      audioUrl: '',
-      coverUrl: v.coverUrl || getYouTubeThumbnail(v.videoId),
-      youtubeId: v.videoId,
-      genre,
-      language: genre === 'Bhojpuri' ? 'Bhojpuri' : 'Hindi',
-      releaseYear: new Date().getFullYear(),
-      playCount: Math.floor(Math.random() * 400000) + 75000,
-      gradient: 'from-emerald-600 via-teal-800 to-slate-950',
-      isOfficial: true,
-    }));
-    return {
-      title: data.title || `YouTube Playlist (${playlistId.slice(0, 10)})`,
-      tracks: resolvedTracks,
-    };
-  } catch {
-    return null;
+  } catch {}
+
+  // Direct client-side fallback if server resolution timed out or failed
+  const fallbackVid =
+    seedVideoId ||
+    (playlistId.startsWith('RD')
+      ? playlistId.slice(2, 13)
+      : playlistId.length === 11
+      ? playlistId
+      : undefined);
+  if (fallbackVid && /^[a-zA-Z0-9_-]{11}$/.test(fallbackVid)) {
+    try {
+      const noembedRes = await fetch(
+        `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${fallbackVid}`
+      );
+      if (noembedRes.ok) {
+        const noembedData = await noembedRes.json();
+        const cleanT = noembedData.title || fallbackTitle || `YouTube Song (${fallbackVid})`;
+        const cleanA = noembedData.author_name || 'YouTube Music';
+        return {
+          title: fallbackTitle || `${cleanA} - ${cleanT}`,
+          tracks: [
+            {
+              id: `track-yt-pl-${fallbackVid}`,
+              title: cleanT,
+              artist: cleanA,
+              album: fallbackTitle || 'YouTube Music',
+              duration: 240,
+              audioUrl: '',
+              coverUrl: getYouTubeThumbnail(fallbackVid),
+              youtubeId: fallbackVid,
+              genre,
+              language: genre === 'Bhojpuri' ? 'Bhojpuri' : 'Hindi',
+              releaseYear: new Date().getFullYear(),
+              playCount: 150000,
+              gradient: 'from-emerald-600 via-teal-800 to-slate-950',
+              isOfficial: true,
+            },
+          ],
+        };
+      }
+    } catch {}
   }
+  return null;
 }
 
 export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

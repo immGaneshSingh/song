@@ -298,8 +298,9 @@ export function isGenericChannelOrLabel(name?: string): boolean {
 export function isVerifiedRealSingerName(name?: string): boolean {
   if (!name) return false;
   const trimmed = name.trim().toLowerCase().replace(/^the\s+/i, '').trim();
-  if (!trimmed || isGenericChannelOrLabel(name)) return false;
+  if (!trimmed || trimmed.length < 2 || isGenericChannelOrLabel(name)) return false;
 
+  // 1. Matches known curated artists
   for (const eng of ENGLISH_ARTIST_PROFILES) {
     if (
       eng.canonical.toLowerCase().replace(/^the\s+/i, '').trim() === trimmed ||
@@ -316,7 +317,12 @@ export function isVerifiedRealSingerName(name?: string): boolean {
       return true;
     }
   }
-  return false;
+
+  // 2. Allow any custom singer added by user/admin (must not look like a movie, channel, or video title)
+  const isVideoOrMovieLabel = /\b(official|video|audio|full song|teaser|trailer|remix|mashup|jukebox|records|music company|status|lofi|slowed|reverb)\b/i.test(trimmed);
+  if (isVideoOrMovieLabel) return false;
+
+  return trimmed.length >= 2 && trimmed.length <= 40;
 }
 
 export interface AIClassifiedTrackResult {
