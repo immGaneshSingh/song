@@ -117,7 +117,7 @@ export const HorizontalCarousel: React.FC<HorizontalCarouselProps> = ({
       {/* Scrollable Track */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scrollbar-none scroll-smooth pb-3 pt-1 px-0.5 snap-x snap-mandatory -mx-1"
+        className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-none scroll-smooth pb-3 pt-1 px-0.5 snap-x snap-mandatory -mx-1"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {children}

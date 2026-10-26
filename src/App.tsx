@@ -925,7 +925,31 @@ function MainContent() {
       ];
 
       return (
-        <div className="space-y-8">
+        <div className="space-y-6 animate-fade-slide-up">
+          {/* Top Functional Search Input Box */}
+          <div className="sticky top-0 z-20 pt-1 pb-3 bg-[#090a0f]/95 backdrop-blur-xl">
+            <div className="relative w-full max-w-2xl">
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search songs, singers, playlists, albums..."
+                className="w-full pl-10 sm:pl-11 pr-10 py-2.5 sm:py-3 bg-slate-900/95 text-xs sm:text-sm text-white placeholder-slate-400 rounded-2xl border border-slate-700/80 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xl transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 cursor-pointer"
+                  aria-label="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
           <div>
             <h2 className="text-xl font-bold text-white mb-2">Browse Music Sections</h2>
             <p className="text-xs text-slate-400 mb-4">
@@ -1071,7 +1095,7 @@ function MainContent() {
                   key={`home-feat-${pl.id}`}
                   playlist={pl}
                   variant="square"
-                  className="w-[144px] sm:w-56 shrink-0 snap-start"
+                  className="w-[155px] sm:w-56 shrink-0 snap-start"
                 />
               ))}
             </HorizontalCarousel>
@@ -1095,7 +1119,7 @@ function MainContent() {
                     key={`sec1-hindi-${track.id}`}
                     track={track}
                     allTracks={hindiTracks}
-                    className="w-[136px] sm:w-48 shrink-0 snap-start"
+                    className="w-[150px] sm:w-48 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1120,7 +1144,7 @@ function MainContent() {
                     key={`sec2-bhoj-${track.id}`}
                     track={track}
                     allTracks={bhojpuriTracks}
-                    className="w-[136px] sm:w-48 shrink-0 snap-start"
+                    className="w-[150px] sm:w-48 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1145,7 +1169,7 @@ function MainContent() {
                     key={`sec3-bhakti-${track.id}`}
                     track={track}
                     allTracks={bhaktiTracks}
-                    className="w-[136px] sm:w-48 shrink-0 snap-start"
+                    className="w-[150px] sm:w-48 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1170,7 +1194,7 @@ function MainContent() {
                     key={`sec4-english-${track.id}`}
                     track={track}
                     allTracks={englishTracks}
-                    className="w-[136px] sm:w-48 shrink-0 snap-start"
+                    className="w-[150px] sm:w-48 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1191,7 +1215,7 @@ function MainContent() {
                   <ArtistCard
                     key={`home-artist-${artist.id}`}
                     artist={artist}
-                    className="w-[110px] sm:w-36 shrink-0 snap-start"
+                    className="w-[115px] sm:w-36 shrink-0 snap-start"
                   />
                 ))}
               </HorizontalCarousel>
@@ -1306,7 +1330,7 @@ function MainContent() {
             )}
           </div>
           <span className="text-[10px] font-semibold mt-0.5">
-            {isMobilePlayerOpen ? 'Hide' : 'Aura'}
+            {isMobilePlayerOpen ? 'Hide' : 'Player'}
           </span>
         </button>
       </nav>

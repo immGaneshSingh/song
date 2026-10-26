@@ -8,7 +8,7 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL || 'https://itxjodboocydoupxngyg.supabase.co';
+  const supabaseUrl = (process.env.SUPABASE_URL || 'https://itxjodboocydoupxngyg.supabase.co').replace(/\/$/, '');
   const supabaseKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.SUPABASE_ANON_KEY ||
@@ -16,34 +16,33 @@ export default async function handler(req: any, res: any) {
 
   if (req.method === 'GET') {
     try {
-      if (supabaseUrl && supabaseKey) {
-        const fetchUrl = `${supabaseUrl}/rest/v1/site_catalog?select=*&order=id.asc&limit=1`;
-        const response = await fetch(fetchUrl, {
-          headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-          },
-        });
-        if (response.ok) {
-          const rows = await response.json();
-          if (Array.isArray(rows) && rows.length > 0 && rows[0].tracks) {
-            res.status(200).json({
-              tracks: rows[0].tracks,
-              playlists: rows[0].playlists || [],
-              artists: rows[0].artists || [],
-              updatedAt: rows[0].updated_at || new Date().toISOString(),
-              storageMode: 'supabase+server',
-            });
-            return;
-          }
+      const fetchUrl = `${supabaseUrl}/rest/v1/site_catalog?id=eq.global_catalog&select=id,tracks,playlists,updated_at`;
+      const response = await fetch(fetchUrl, {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          Accept: 'application/json',
+        },
+      });
+      if (response.ok) {
+        const rows = await response.json();
+        if (Array.isArray(rows) && rows.length > 0 && Array.isArray(rows[0].tracks)) {
+          res.status(200).json({
+            tracks: rows[0].tracks,
+            playlists: rows[0].playlists || [],
+            updatedAt: rows[0].updated_at || new Date().toISOString(),
+            storageMode: 'supabase+server',
+          });
+          return;
         }
       }
-    } catch {}
+    } catch (err: any) {
+      console.error('Error fetching catalog in serverless:', err);
+    }
 
     res.status(200).json({
       tracks: [],
       playlists: [],
-      artists: [],
       updatedAt: new Date().toISOString(),
       storageMode: 'server-permanent',
     });
@@ -52,41 +51,37 @@ export default async function handler(req: any, res: any) {
 
   if (req.method === 'POST') {
     try {
-      const { tracks, playlists, artists } = req.body || {};
+      const { tracks, playlists } = req.body || {};
       const updatedAt = new Date().toISOString();
 
-      if (supabaseUrl && supabaseKey && Array.isArray(tracks)) {
-        const payload = {
-          id: 1,
-          tracks,
-          playlists: playlists || [],
-          artists: artists || [],
-          updated_at: updatedAt,
-        };
-        const upsertUrl = `${supabaseUrl}/rest/v1/site_catalog`;
-        await fetch(upsertUrl, {
-          method: 'POST',
+      if (Array.isArray(tracks) && tracks.length > 0) {
+        const patchUrl = `${supabaseUrl}/rest/v1/site_catalog?id=eq.global_catalog`;
+        await fetch(patchUrl, {
+          method: 'PATCH',
           headers: {
             apikey: supabaseKey,
             Authorization: `Bearer ${supabaseKey}`,
             'Content-Type': 'application/json',
-            Prefer: 'resolution=merge-duplicates',
+            Prefer: 'return=representation',
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            tracks,
+            playlists: playlists || [],
+            updated_at: updatedAt,
+          }),
         });
       }
 
       res.status(200).json({
         success: true,
         updatedAt,
-        tracks,
-        playlists,
-        artists,
+        tracksCount: tracks?.length || 0,
+        playlistsCount: playlists?.length || 0,
       });
     } catch (err: any) {
-      res.status(200).json({
-        success: true,
-        updatedAt: new Date().toISOString(),
+      res.status(500).json({
+        success: false,
+        error: err?.message,
       });
     }
     return;
