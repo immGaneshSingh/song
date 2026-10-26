@@ -126,10 +126,14 @@ function MainContent() {
   const [showSectionManager, setShowSectionManager] = useState(false);
   const [playlistToEdit, setPlaylistToEdit] = useState<Playlist | null>(null);
   const [singerFilter, setSingerFilter] = useState<string>('All');
+  const [singerSearchQuery, setSingerSearchQuery] = useState('');
+  const [singerLanguageFilter, setSingerLanguageFilter] = useState('All');
   const mainScrollRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     setSingerFilter('All');
+    setSingerSearchQuery('');
+    setSingerLanguageFilter('All');
     setShowSectionManager(false);
     setSectionManageSearch('');
     mainScrollRef.current?.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
@@ -179,6 +183,39 @@ function MainContent() {
     }
     return null;
   }, [activeView, artists]);
+
+  // Derived unique singer languages for category filters in Singers section
+  const singerLanguages = useMemo(() => {
+    const langs = new Set<string>();
+    artists.forEach((a) => {
+      if (a.language && a.language.trim()) {
+        langs.add(a.language.trim());
+      }
+    });
+    const preferredOrder = ['All', 'Hindi', 'Bhojpuri', 'Punjabi', 'Pan-Indian', 'Other Country'];
+    const otherLangs = Array.from(langs).filter((l) => !preferredOrder.includes(l));
+    return preferredOrder.filter((l) => l === 'All' || langs.has(l)).concat(otherLangs);
+  }, [artists]);
+
+  // Filtered singers based on search box input and language filter
+  const filteredArtists = useMemo(() => {
+    const q = singerSearchQuery.trim().toLowerCase();
+    return artists.filter((a) => {
+      const matchesSearch =
+        !q ||
+        a.name.toLowerCase().includes(q) ||
+        (a.hindiName && a.hindiName.toLowerCase().includes(q)) ||
+        (a.role && a.role.toLowerCase().includes(q)) ||
+        (a.language && a.language.toLowerCase().includes(q));
+
+      const matchesLang =
+        singerLanguageFilter === 'All' ||
+        a.language?.toLowerCase() === singerLanguageFilter.toLowerCase() ||
+        (singerLanguageFilter === 'Hindi' && (a.language === 'Pan-Indian' || a.language === 'Hindi'));
+
+      return matchesSearch && matchesLang;
+    });
+  }, [artists, singerSearchQuery, singerLanguageFilter]);
 
   // Strictly isolated songs for the active singer (e.g., Yo Yo Honey Singh ONLY plays Honey Singh songs)
   const activeArtistTracks = useMemo(() => {
@@ -550,15 +587,19 @@ function MainContent() {
       return renderSectionDetailView(activeView);
     }
 
-    // 5. Famous Indian Singers Directory View
+    // 5. Famous Indian & Global Singers Directory View
     if (activeView === 'artists') {
       return (
-        <div className="space-y-8">
+        <div className="space-y-6">
+          {/* Top Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2.5">
                 <Mic2 className="w-7 h-7 text-amber-400" />
                 <span>Singers</span>
+                <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  {artists.length}
+                </span>
               </h1>
               <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
                 Explore playback icons, folk stars, and stream discographies dedicated exclusively to each singer.
@@ -566,18 +607,129 @@ function MainContent() {
             </div>
             <button
               onClick={() => setActiveView('home')}
-              className="self-start flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white cursor-pointer"
+              className="self-start flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white cursor-pointer transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Home</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {artists.map((artist) => (
-              <ArtistCard key={artist.id} artist={artist} />
-            ))}
+          {/* Dedicated Singer Search & Filter Box */}
+          <div className="bg-slate-900/70 border border-slate-800/80 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-xl space-y-3.5">
+            {/* Search Input Bar */}
+            <div className="relative flex items-center">
+              <Search className="absolute left-3.5 w-5 h-5 text-amber-400 pointer-events-none" />
+              <input
+                type="text"
+                value={singerSearchQuery}
+                onChange={(e) => setSingerSearchQuery(e.target.value)}
+                placeholder="Search singer by name (e.g. Arijit Singh, Pawan Singh, Shreya, Honey Singh...)"
+                className="w-full bg-slate-950/80 border border-slate-700/80 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 rounded-xl pl-11 pr-10 py-3 text-sm sm:text-base text-white placeholder-slate-500 outline-none transition-all"
+              />
+              {singerSearchQuery && (
+                <button
+                  onClick={() => setSingerSearchQuery('')}
+                  aria-label="Clear singer search"
+                  className="absolute right-3 p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Language / Region Filter Chips */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+              <span className="text-slate-400 font-medium shrink-0 flex items-center gap-1 pl-1">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
+                Filter:
+              </span>
+              {singerLanguages.map((lang) => {
+                const isSelected = singerLanguageFilter.toLowerCase() === lang.toLowerCase();
+                const count =
+                  lang === 'All'
+                    ? artists.length
+                    : artists.filter((a) => {
+                        if (lang === 'Hindi') return a.language === 'Pan-Indian' || a.language === 'Hindi';
+                        return a.language?.toLowerCase() === lang.toLowerCase();
+                      }).length;
+
+                return (
+                  <button
+                    key={lang}
+                    onClick={() => setSingerLanguageFilter(lang)}
+                    className={`shrink-0 px-3 py-1.5 rounded-full font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                        : 'bg-slate-800/80 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700/60'
+                    }`}
+                  >
+                    <span>{lang}</span>
+                    <span
+                      className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                        isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-900 text-slate-400'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Live Filter Indicator */}
+            <div className="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-800/60">
+              <span>
+                {singerSearchQuery.trim() ? (
+                  <>
+                    Found <strong className="text-amber-400">{filteredArtists.length}</strong> {filteredArtists.length === 1 ? 'singer' : 'singers'} for &quot;{singerSearchQuery}&quot;
+                  </>
+                ) : (
+                  <>
+                    Showing <strong className="text-slate-200">{filteredArtists.length}</strong> of {artists.length} singers
+                  </>
+                )}
+              </span>
+              {(singerSearchQuery.trim() || singerLanguageFilter !== 'All') && (
+                <button
+                  onClick={() => {
+                    setSingerSearchQuery('');
+                    setSingerLanguageFilter('All');
+                  }}
+                  className="text-amber-400 hover:text-amber-300 hover:underline cursor-pointer"
+                >
+                  Reset all filters
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* Grid or Empty State */}
+          {filteredArtists.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+              {filteredArtists.map((artist) => (
+                <ArtistCard key={artist.id} artist={artist} />
+              ))}
+            </div>
+          ) : (
+            <div className="py-16 px-4 text-center rounded-2xl bg-slate-900/40 border border-slate-800/80 flex flex-col items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
+                <Search className="w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-1.5">No singers found</h3>
+              <p className="text-xs sm:text-sm text-slate-400 max-w-md mb-5 leading-relaxed">
+                Could not find any singer profile matching &quot;{singerSearchQuery}&quot;. Please check the spelling or search another singer name.
+              </p>
+              <button
+                onClick={() => {
+                  setSingerSearchQuery('');
+                  setSingerLanguageFilter('All');
+                }}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+              >
+                Clear Search & View All
+              </button>
+            </div>
+          )}
         </div>
       );
     }

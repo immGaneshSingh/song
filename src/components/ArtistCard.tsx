@@ -17,7 +17,6 @@ export const ArtistCard: React.FC<ArtistCardProps> = React.memo(({ artist, class
 
   const handleCardClick = () => {
     setActiveView(`artist-${artist.id}` as ActiveView);
-    playArtist(artist, 'sequential');
   };
 
   const handlePlayClick = (e: React.MouseEvent) => {
